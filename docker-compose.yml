@@ -65,6 +65,24 @@ services:  # Khối định nghĩa các dịch vụ sẽ được Docker Compose
     networks:
       - app-network
 
+  stock_analytics:
+    build:
+      context: ./stock_analytics  # Thư mục chứa Dockerfile và các file cần thiết cho quá trình build image
+      dockerfile: Dockerfile  # Tên của file Dockerfile được sử dụng để chỉ định cách xây dựng image
+    container_name: stock_analytics
+    volumes:
+      - ./stock_analytics:/app
+    environment:
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
+      - spark-worker-1
+      - spark-worker-2
+    ports:
+      - "1000:8000"
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
