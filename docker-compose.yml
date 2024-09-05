@@ -1,0 +1,208 @@
+services:  # Khối định nghĩa các dịch vụ sẽ được Docker Compose quản lý
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    networks:
+      - app-network
+
+  spark-worker-1:
+    image: bitnami/spark:latest
+    container_name: spark-worker-1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+
+  spark-worker-2:
+    image: bitnami/spark:latest
+    container_name: spark-worker-2
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    depends_on:
+      - spark-master
+    ports:
+      - "8082:8082"
+    networks:
+      - app-network
+
+  spark-worker-3:
+    image: bitnami/spark:latest
+    container_name: spark-worker-3
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    depends_on:
+      - spark-master
+    ports:
+      - "8083:8083"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+  # zookeeper:
+  #   image: docker.io/bitnami/zookeeper:3.9
+  #   container_name: zookeeper-1
+  #   restart: always
+  #   environment:
+  #     - ALLOW_ANONYMOUS_LOGIN=yes
+  #   networks:
+  #     - app-network
+
+  # kafka:
+  #   image: docker.io/bitnami/kafka:3.4
+  #   container_name: kafka-1 
+  #   ports:
+  #     - "9092:9092"
+  #     - "9093:9093"
+  #   environment:
+  #     - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+  #     - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+  #     - KAFKA_CFG_LISTENERS=INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+  #     - KAFKA_CFG_ADVERTISED_LISTENERS=INSIDE://kafka-1:9093,OUTSIDE://localhost:9092
+  #     - KAFKA_INTER_BROKER_LISTENER_NAME=OUTSIDE
+  #   depends_on:
+  #     - zookeeper
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "/opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list" ]
+  #     interval: 5s
+  #     timeout: 10s
+  #     retries: 5
+  #   networks:
+  #     - app-network
+
+  # init-kafka:
+  #   image: confluentinc/cp-kafka:6.1.1
+  #   depends_on:
+  #     - kafka
+  #   entrypoint: [ '/bin/sh', '-c' ]
+  #   networks:
+  #     - app-network
+  #   command: |
+  #     "
+  #     # blocks until kafka is reachable
+  #     kafka-topics --bootstrap-server kafka:9093 --list
+  #     echo -e 'Creating kafka topics'
+
+  #     # Tạo topic customers_topic với 4 partitions
+  #     kafka-topics --bootstrap-server kafka-1:9093 --create --if-not-exists --topic stock_topic --replication-factor 1 --partitions 4
+
+  #     echo -e 'Successfully created the following topics:'
+  #     kafka-topics --bootstrap-server kafka-1:9093 --list
+  #     "
+
+  # static-web-service:
+  #   build:
+  #     context: ./static-web-service  # Thư mục chứa Dockerfile và các file cần thiết cho quá trình build image
+  #     dockerfile: Dockerfile  # Tên của file Dockerfile được sử dụng để chỉ định cách xây dựng image
+  #   container_name: static-web-service
+  #   ports:
+  #     - "4000:3000"
+  #   volumes:
+  #     - ./static-web-service:/app
+  #   environment:
+  #     - NODE_ENV=development  # Hoặc production tùy thuộc vào môi trường
+  #   depends_on:
+  #     - kafka
+  #     - init-kafka
+  #   networks:
+  #     - app-network
+
+  # fake-stock-data:
+  #   build:
+  #     context: ./fakeStockData  # Thư mục chứa Dockerfile và các file cần thiết cho quá trình build image
+  #     dockerfile: Dockerfile  # Tên của file Dockerfile được sử dụng để chỉ định cách xây dựng image
+  #   container_name: fake-stock-data
+  #   volumes:
+  #     - ./fakeStockData:/app
+  #   depends_on:
+  #     - kafka
+  #     - init-kafka
+  #   networks:
+  #     - app-network
+
+
+  # postgresql:
+  #   image: postgres:latest
+  #   container_name: postgresql
+  #   environment:
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=postgres
+  #     - POSTGRES_DB=stock_db
+  #   volumes:
+  #     - ./initdb:/docker-entrypoint-initdb.d
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - app-network
+  
+  # kafka-to-postgres-consumer:
+  #   build:
+  #     context: ./kafka-to-postgres-consumer  # Thư mục chứa Dockerfile và các file cần thiết cho quá trình build image
+  #     dockerfile: Dockerfile  # Tên của file Dockerfile được sử dụng để chỉ định cách xây dựng image
+  #   container_name: kafka-to-postgres-consumer
+  #   volumes:
+  #     - ./kafka-to-postgres-consumer:/app
+  #   depends_on:
+  #     - kafka
+  #     - init-kafka
+  #     - postgresql
+  #   networks:
+  #     - app-network
+
+  # stock-data-stream-service:
+  #   build:
+  #     context: ./stock-data-stream-service  # Thư mục chứa Dockerfile và các file cần thiết cho quá trình build image
+  #     dockerfile: Dockerfile  # Tên của file Dockerfile được sử dụng để chỉ định cách xây dựng image
+  #   container_name: stock-data-stream-service
+  #   ports:
+  #     - "5000:3000"
+  #   volumes:
+  #     - ./stock-data-stream-service:/app
+  #   environment:
+  #     - NODE_ENV=development  # Hoặc production tùy thuộc vào môi trường
+  #   depends_on:
+  #     - kafka
+  #     - init-kafka
+  #   networks:
+  #     - app-network
+
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #   depends_on:
+  #     - kafka
+  #   networks:
+  #     - app-network
