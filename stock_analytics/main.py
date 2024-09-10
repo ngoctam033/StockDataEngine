@@ -67,7 +67,7 @@ def line_chart(
     # tính các điểm Bullish Signal và Bearish Signal
     bullish_signals, bearish_signals = find_signals(dates, MACD, signal_line)
 
-    html_chart = create_line_chart(dates, [close_prices, MACD, signal_line ], 
+    html_line_chart = create_line_chart(dates, [close_prices, MACD, signal_line ], 
                                     labels=["Close Price", "MACD", "Signal Line"], 
                                     title=f"Stock Prices and MACD for {stock_symbol}",
                                     xaxis_title="Date", yaxis_title="Price",
@@ -76,7 +76,7 @@ def line_chart(
     # kết thúc thời gian chạy hàm
     end_time = time.time()
     print(f"Time to run line_chart: {end_time - start_time} seconds")
-    return HTMLResponse(content=html_chart)
+    return HTMLResponse(content=html_line_chart)
 
 
 
