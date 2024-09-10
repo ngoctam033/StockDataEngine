@@ -17,7 +17,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH $JAVA_HOME/bin:$PATH
 
 # Cài đặt các gói phụ thuộc Python
-RUN pip install --no-cache-dir fastapi uvicorn pyspark plotly
+RUN pip install --no-cache-dir fastapi uvicorn pyspark plotly pandas setuptools
 
 # Sao chép mã nguồn vào thư mục làm việc
 COPY . /app/

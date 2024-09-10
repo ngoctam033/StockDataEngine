@@ -16,5 +16,13 @@ def create_spark_session():
         .config("spark.executor.cores", "4") \
         .config("spark.sql.shuffle.partitions", "200") \
         .getOrCreate()
+    # Định nghĩa hàm ewm để tính toán Exponential Weighted Moving Average
+    def ewm(df, span):
+        alpha = 2 / (span + 1)
+        return df.withColumn("ewm", expr(f"SUM(Adj Close * {alpha} * (1 - {alpha}) ^ (ROW_NUMBER() OVER (ORDER BY Date) - 1)) OVER (ORDER BY Date)"))
+
+    # Định nghĩa hàm ewm để tính toán Exponential Weighted Moving Average
+    spark.udf.register("ewm", ewm)
     
     return spark
+

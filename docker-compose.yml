@@ -11,6 +11,8 @@ services:  # Khối định nghĩa các dịch vụ sẽ được Docker Compose
     ports:
       - "8080:8080"
       - "7077:7077"
+    volumes:
+      - ./stocks:/app/stocks
     networks:
       - app-network
 
