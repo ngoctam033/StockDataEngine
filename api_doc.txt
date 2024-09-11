@@ -1,0 +1,48 @@
+Endpoint: /stock/line_chart
+Phương thức: GET
+Mô tả:
+Endpoint này trả về một biểu đồ đường (line chart) hiển thị giá cổ phiếu, MACD và Signal Line cho một mã cổ phiếu cụ thể trong khoảng thời gian được chỉ định. Biểu đồ cũng bao gồm các tín hiệu Bullish và Bearish.
+
+Tham số:
+start_date (bắt buộc): Ngày bắt đầu (định dạng YYYY-MM-DD).
+
+Mô tả: Ngày bắt đầu của khoảng thời gian cần lấy dữ liệu. Nếu giá trị là "0", tất cả dữ liệu sẽ được lấy.
+Ví dụ: 2023-01-01
+end_date (bắt buộc): Ngày kết thúc (định dạng YYYY-MM-DD).
+
+Mô tả: Ngày kết thúc của khoảng thời gian cần lấy dữ liệu. Nếu giá trị là "0", tất cả dữ liệu sẽ được lấy.
+Ví dụ: 2023-12-31
+stock_symbol (bắt buộc): Mã cổ phiếu.
+
+Mô tả: Mã cổ phiếu cần lấy dữ liệu.
+Ví dụ: AAPL
+Ví dụ yêu cầu:
+Phản hồi:
+Phản hồi là một biểu đồ đường (line chart) được hiển thị dưới dạng HTML.
+
+200 OK: Trả về biểu đồ đường hiển thị giá cổ phiếu, MACD, Signal Line, và các tín hiệu Bullish và Bearish.
+Mô tả chi tiết:
+Đọc dữ liệu từ file CSV:
+
+Đọc dữ liệu từ file CSV tương ứng với mã cổ phiếu được cung cấp.
+Chỉ chọn các trường "Date" và "Adj Close".
+Lọc dữ liệu theo khoảng thời gian:
+
+Nếu start_date và end_date không phải là "0", lọc dữ liệu từ start_date đến end_date.
+Tính toán MACD và Signal Line:
+
+Tính toán MACD 6 ngày và MACD 13 ngày.
+Tính toán MACD bằng cách lấy hiệu của MACD 6 ngày và MACD 13 ngày.
+Tính toán Signal Line bằng cách lấy EMA 9 ngày của MACD.
+Chuyển đổi dữ liệu sang danh sách:
+
+Chuyển đổi các trường "Date", "Adj Close", "MACD", và "MACD_Signal" sang danh sách.
+Tính toán các tín hiệu Bullish và Bearish:
+
+Sử dụng hàm find_signals để tính toán các tín hiệu Bullish và Bearish.
+Tạo biểu đồ đường:
+
+Sử dụng hàm create_line_chart để tạo biểu đồ đường hiển thị giá cổ phiếu, MACD, Signal Line, và các tín hiệu Bullish và Bearish.
+Trả về phản hồi:
+
+Trả về biểu đồ đường dưới dạng HTML.
